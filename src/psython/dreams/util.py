@@ -1,4 +1,4 @@
-from io import StringIO
+from cStringIO import StringIO
 
 import numpy as np
 from IPython.display import Image, display
@@ -8,7 +8,7 @@ import PIL.Image
 
 
 def create_image(rel_path):
-    return np.float32(PIL.Image.open(rel_path))
+    return np.float32(PIL.Image.open(rel_path).convert('RGB'))
 
 
 def ls_blob_keys(net):
@@ -26,6 +26,8 @@ def iterate_frames(net, img, subdir, iter_n=10, octave_n=4, octave_scale=1.4,
         PIL.Image.fromarray(np.uint8(frame)).save("frames/%s/%04d.jpg" % (subdir, frame_i))
         frame = nd.affine_transform(frame, [1 - s, 1 - s, 1], [h * s / 2, w * s / 2, 0], order=1)
         frame_i += 1
+
+
 
 
 def show_array(a, fmt='jpeg'):

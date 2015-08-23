@@ -12,7 +12,7 @@ import caffe
 DEFAULT_OBJECTIVE = L2Objective()
 
 
-def load_dnn_model(model_path='../caffe/models/bvlc_googlenet/',
+def load_dnn_model(model_path='../../open-source/caffe/models/bvlc_googlenet/',
                    net_fn_name='deploy.prototxt', param_fn_name='bvlc_googlenet.caffemodel'):
     net_fn = model_path + net_fn_name
     param_fn = model_path + param_fn_name
@@ -46,7 +46,7 @@ class Dream:
         self.clip = clip
         self.objective = objective
 
-    def deep(self, **step_params):
+    def dream(self, **step_params):
         """
         Dream the little dream...i.e. send an image through the net associated with this Dream.
         :param step_params: Any of the parameters to the make_step method not needed anywhere else
@@ -69,7 +69,7 @@ class Dream:
             src.reshape(1, 3, h, w)  # resize the network's input image size
             src.data[0] = octave_base + detail
             for i in range(self.iter_n):
-                self.make_step(self.net, **step_params)
+                self.make_step(**step_params)
 
                 # visualization
                 vis = caffe_to_pil(self.net, src.data[0])
@@ -77,7 +77,7 @@ class Dream:
                     vis *= 255.0 / np.percentile(vis, 99.98)
                 show_array(vis)
                 print(octave, i, self.end, vis.shape)
-                clear_output(wait=True)
+                clear_output()
 
             # extract details produced on the current octave
             detail = src.data[0] - octave_base
@@ -94,7 +94,7 @@ class Dream:
         src.data[0] = np.roll(np.roll(src.data[0], ox, -1), oy, -2)  # apply jitter shift
 
         self.net.forward(end=self.end)
-        self.objective.objective(dst)  # specify the optimization objective
+        self.objective.objective(dst, self.net, self.end)  # specify the optimization objective
         self.net.backward(start=self.end)
         g = src.diff[0]
         # apply normalized ascent step to the input image
